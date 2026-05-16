@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Client Selections</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="admin-panel-page">
+    <div class="admin-panel-shell">
+        <aside class="admin-sidebar">
+            <img src="../Assets/logo.png" alt="V2 Cinematic Studio Admin" class="admin-sidebar-logo">
+            <nav class="admin-sidebar-nav">
+                <a href="dashboard.html" class="admin-sidebar-link">Dashboard</a>
+                <a href="bookings.html" class="admin-sidebar-link">Bookings</a>
+                <a href="client-details.html" class="admin-sidebar-link">Client Details</a>
+                <a href="client-gallery-upload.html" class="admin-sidebar-link">Gallery Upload</a>
+                <a href="selection-view.html" class="admin-sidebar-link active">Selections</a>
+                <button type="button" class="admin-sidebar-link admin-sidebar-logout" id="adminLogout">Logout</button>
+            </nav>
+        </aside>
+
+        <main class="admin-main" id="adminSelectionViewRoot">
+            <div class="admin-page-header">
+                <h1>Client Photo Selections</h1>
+                <p>Review the photos selected by your clients from their galleries.</p>
+            </div>
+
+            <div class="admin-panel-card">
+                <div class="admin-form">
+                    <div class="admin-grid">
+                        <label class="admin-field admin-field-full">
+                            <span>Select Client</span>
+                            <select id="clientSelect" required>
+                                <option value="">-- Select a client --</option>
+                                <!-- Clients with selections will be loaded here by JavaScript -->
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="admin-subsection">
+                        <h3>Selected Images</h3>
+                        <div id="selectedImagePreviews" class="gallery-preview-grid">
+                            <!-- Selected image previews will appear here -->
+                            <p id="noSelectionMessage" class="admin-empty-state is-visible">No selections found for this client.</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <button type="button" class="admin-primary-button" id="downloadFullQualityBtn" disabled>
+                            Download Full Quality (Admin Only)
+                        </button>
+                    </div>
+                    <p id="selectionViewMessage" class="admin-form-message"></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/admin.js"></script>
+</body>
+</html>

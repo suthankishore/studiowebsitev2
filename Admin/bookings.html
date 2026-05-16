@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Bookings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="admin-panel-page">
+    <div class="admin-panel-shell">
+        <aside class="admin-sidebar">
+            <img src="../Assets/logo.png" alt="V2 Cinematic Studio Admin" class="admin-sidebar-logo">
+            <nav class="admin-sidebar-nav">
+                <a href="dashboard.html" class="admin-sidebar-link">Dashboard</a>
+                <a href="bookings.html" class="admin-sidebar-link active">Bookings</a>
+                <a href="client-details.html" class="admin-sidebar-link">Client Details</a>
+                <a href="client-gallery-upload.html" class="admin-sidebar-link">Gallery Upload</a>
+                <a href="selection-view.html" class="admin-sidebar-link">Selections</a>
+                <button type="button" class="admin-sidebar-link admin-sidebar-logout" id="adminLogout">Logout</button>
+            </nav>
+        </aside>
+
+        <main class="admin-main" id="adminBookingsRoot">
+            <div class="admin-page-header admin-page-header-row">
+                <div>
+                    <h1>Booking Requests</h1>
+                    <p>Manage incoming booking requests from the website.</p>
+                </div>
+                <button type="button" class="admin-primary-button" id="openDirectBookingForm">Add New Booking</button>
+            </div>
+
+            <div class="admin-panel-card" id="directBookingCard" hidden>
+                <div class="admin-panel-card-header">
+                    <h2>Add New Booking</h2>
+                    <button type="button" class="admin-mini-button admin-remove-button" id="closeDirectBookingForm">Close</button>
+                </div>
+                <form class="admin-form" id="directBookingForm">
+                    <div class="admin-grid admin-grid-2">
+                        <label class="admin-field">
+                            <span>Name</span>
+                            <input type="text" name="name" required>
+                        </label>
+                        <label class="admin-field">
+                            <span>Mail</span>
+                            <input type="email" name="email" required>
+                        </label>
+                        <label class="admin-field">
+                            <span>Phone</span>
+                            <input type="text" name="phone" required>
+                        </label>
+                        <label class="admin-field">
+                            <span>Event</span>
+                            <input type="text" name="eventType" required>
+                        </label>
+                        <label class="admin-field">
+                            <span>Date</span>
+                            <input type="date" name="eventDate" required>
+                        </label>
+                        <label class="admin-field">
+                            <span>Location</span>
+                            <input type="text" name="location" required>
+                        </label>
+                        <label class="admin-field">
+                            <span>Total Amount</span>
+                            <input type="number" name="amount" min="0" step="1" required>
+                        </label>
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="submit" class="admin-primary-button" id="saveDirectBooking">Book Now</button>
+                        <p id="directBookingMessage" class="admin-form-message"></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-panel-card">
+                <div class="admin-panel-card-header">
+                    <h2>Pending Bookings</h2>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Event Type</th>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <!-- Booking requests will be loaded here by JavaScript -->
+                            <tr>
+                                <td colspan="7" class="admin-empty-row">Loading bookings...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p id="bookingsMessage" class="admin-form-message"></p>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/admin.js"></script>
+</body>
+</html>

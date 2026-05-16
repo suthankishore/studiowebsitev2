@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Gallery | V2 Cinematic Studio</title>
+    <meta name="description" content="Access and select your exclusive photos from V2 Cinematic Studio.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo" aria-label="V2 Cinematic Studio home">
+                <img src="../Assets/logo.png" alt="V2 Cinematic Studio logo" class="logo-image">
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="package.html" class="nav-link">Package</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="works.html" class="nav-link">Works</a></li>
+                <li><a href="../index.html#contact" class="nav-link">get quote</a></li>
+                <li><a href="booknow.html" class="nav-book-btn">Book Now</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger" aria-label="Open navigation" role="button" tabindex="0">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    <main class="client-gallery-section">
+        <div class="client-gallery-card">
+            <div class="client-gallery-header">
+                <h1 id="galleryTitle">Your Exclusive Gallery</h1>
+                <p id="gallerySubtitle">Enter your token and phone number to access your photos.</p>
+            </div>
+            
+            <form id="galleryLoginForm" class="gallery-login-form">
+                <input type="text" id="clientToken" placeholder="Your Unique Token (e.g., V2-1234)" required>
+                <input type="tel" id="clientPhone" placeholder="Your WhatsApp Number" required>
+                <button type="submit" class="premium-submit-btn">Access Gallery</button>
+                <p id="galleryLoginMessage" class="success-msg"></p>
+            </form>
+
+            <div id="clientGalleryContent" style="display: none;">
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- Images will be loaded here -->
+                </div>
+                <div class="gallery-controls">
+                    <p>Selected: <span id="selectionCounter">0</span> photos</p>
+                    <button type="button" class="premium-submit-btn" id="submitSelectionBtn">Submit Selection</button>
+                    <p id="selectionMessage" class="success-msg"></p>
+                    <a href="#" id="fullQualityDownloadLink" class="gallery-download-link" target="_blank" rel="noopener" style="display: none;">Download Full Quality (Google Drive)</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/script.js"></script>
+</body>
+</html>

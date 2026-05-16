@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="admin-panel-page">
+    <div class="admin-panel-shell">
+        <aside class="admin-sidebar">
+            <img src="../Assets/logo.png" alt="V2 Cinematic Studio Admin" class="admin-sidebar-logo">
+            <nav class="admin-sidebar-nav">
+                <a href="dashboard.html" class="admin-sidebar-link active">Dashboard</a>
+                <a href="bookings.html" class="admin-sidebar-link">Bookings</a>
+                <a href="client-details.html" class="admin-sidebar-link">Client Details</a>
+                <a href="client-gallery-upload.html" class="admin-sidebar-link">Gallery Upload</a>
+                <a href="selection-view.html" class="admin-sidebar-link">Selections</a>
+                <button type="button" class="admin-sidebar-link admin-sidebar-logout" id="adminLogout">Logout</button>
+            </nav>
+        </aside>
+
+        <main class="admin-main" id="adminDashboardRoot">
+            <div class="admin-page-header">
+                <h1>Dashboard Overview</h1>
+                <p>A quick glance at your studio's performance and recent activities.</p>
+            </div>
+
+            <div class="admin-stat-grid">
+                <div class="admin-stat-card">
+                    <p>Total Clients</p>
+                    <strong id="dashboardTotalClients">0</strong>
+                </div>
+                <div class="admin-stat-card">
+                    <p>Total Leads</p>
+                    <strong id="dashboardTotalLeads">0</strong>
+                </div>
+                <div class="admin-stat-card">
+                    <p>Expected Sales</p>
+                    <strong id="dashboardExpectedSales">Rs 0</strong>
+                </div>
+                <div class="admin-stat-card">
+                    <p>Pending Actions</p>
+                    <strong id="dashboardPending">0</strong>
+                </div>
+            </div>
+
+            <div class="admin-content-grid">
+                <div class="admin-panel-card">
+                    <div class="admin-panel-card-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+                    <div class="admin-activity-list" id="dashboardActivity">
+                        <!-- Recent activities will be loaded here by JavaScript -->
+                        <p class="admin-empty-state">Loading activity...</p>
+                    </div>
+                </div>
+                <div class="admin-panel-card">
+                    <div class="admin-panel-card-header">
+                        <h2>Quick Actions</h2>
+                    </div>
+                    <div class="admin-quick-actions">
+                        <a href="bookings.html" class="admin-action-tile">
+                            <strong>Review Bookings</strong>
+                            <span>Accept or decline new requests.</span>
+                        </a>
+                        <a href="client-details.html" class="admin-action-tile">
+                            <strong>Manage Clients</strong>
+                            <span>View and update client details.</span>
+                        </a>
+                        <a href="client-gallery-upload.html" class="admin-action-tile">
+                            <strong>Upload Galleries</strong>
+                            <span>Prepare client photo previews.</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/admin.js"></script>
+</body>
+</html>
