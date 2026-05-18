@@ -140,6 +140,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    const sidebarToggle = document.querySelector('.admin-sidebar-toggle');
+    const sidebarBackdrop = document.querySelector('[data-admin-sidebar-backdrop]');
+    const adminShell = document.querySelector('.admin-panel-shell');
+    const adminMain = document.querySelector('.admin-main');
+
+    const closeAdminSidebar = function() {
+        if (!adminShell || !adminShell.classList.contains('sidebar-open')) return;
+        adminShell.classList.remove('sidebar-open');
+        if (sidebarToggle) {
+            sidebarToggle.setAttribute('aria-expanded', 'false');
+        }
+    };
+
+    const toggleAdminSidebar = function() {
+        if (!adminShell) return;
+        const isOpen = adminShell.classList.toggle('sidebar-open');
+        if (sidebarToggle) {
+            sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+        }
+    };
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function(event) {
+            event.stopPropagation();
+            toggleAdminSidebar();
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeAdminSidebar);
+    }
+
+    if (adminMain) {
+        adminMain.addEventListener('click', closeAdminSidebar);
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAdminSidebar();
+        }
+    });
+
     if (dashboardRoot || bookingsRoot || galleryUploadRoot || selectionViewRoot || clientDetailsRoot || paymentTrackerRoot || worksEditorRoot || packagesEditorRoot || giftsEditorRoot) {
         if (!window.v2Firebase || !window.v2Firebase.onAdminAuthStateChanged) {
             return;
