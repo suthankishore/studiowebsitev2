@@ -1255,6 +1255,10 @@ img {
         color: rgba(255, 255, 255, 0.92);
         font-size: 14px;
         line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: normal;
+        overflow-wrap: normal;
+        hyphens: none;
     }
 
     .contact-panel-icon {
