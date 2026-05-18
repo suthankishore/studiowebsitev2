@@ -2945,6 +2945,8 @@ img {
     align-items: flex-end;
     position: relative;
     overflow: hidden;
+    border: 1px solid rgba(255, 137, 58, 0.35);
+    box-shadow: 0 0 0 1px rgba(255, 137, 58, 0.08), 0 24px 60px rgba(255, 137, 58, 0.08);
 }
 
 .about-service-item::before {
@@ -2954,6 +2956,11 @@ img {
     background: linear-gradient(180deg, transparent, rgba(255, 106, 0, 0.08));
     opacity: 0;
     transition: opacity 0.3s ease;
+}
+
+.about-service-item:hover {
+    border-color: rgba(255, 137, 58, 0.55);
+    box-shadow: 0 0 0 1px rgba(255, 137, 58, 0.14), 0 28px 70px rgba(255, 137, 58, 0.12);
 }
 
 .about-service-item:hover::before {
