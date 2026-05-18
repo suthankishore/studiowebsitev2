@@ -1229,6 +1229,38 @@ img {
     .contact-form .btn {
         padding: 16px;
     }
+
+    /* Mobile-only contact icon layout */
+    .contact-panel-item {
+        align-items: center;
+        gap: 12px;
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .contact-panel-item .contact-panel-details {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .contact-panel-item .contact-panel-details small {
+        display: block;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .contact-panel-item .contact-panel-details p {
+        display: block;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .contact-panel-icon {
+        width: 44px;
+        height: 44px;
+    }
 }
 
 /* ============================================
