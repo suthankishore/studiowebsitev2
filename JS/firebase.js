@@ -140,16 +140,69 @@ window.v2Firebase = {
         }));
     },
 
+    async getAlbumPreviewClients() {
+        const normalizeClient = (doc, collectionName) => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                collection: collectionName,
+                name: data.name || data.clientName || 'Unnamed Client',
+                phone: data.phone || data.phoneNumber || '',
+                token: data.token || '',
+                email: data.email || '',
+                eventType: data.eventType || data.event || data.clientType || '',
+                createdAt: timestampToIso(data.createdAt),
+                ...data
+            };
+        };
+
+        const [clientDetailsSnapshot, clientsSnapshot] = await Promise.all([
+            db.collection('clientDetails').get().catch(() => null),
+            db.collection('clients').orderBy('createdAt', 'desc').get().catch(() => null)
+        ]);
+
+        const clientDetails = clientDetailsSnapshot
+            ? clientDetailsSnapshot.docs.map(doc => normalizeClient(doc, 'clientDetails'))
+            : [];
+        const clients = clientsSnapshot
+            ? clientsSnapshot.docs.map(doc => normalizeClient(doc, 'clients'))
+            : [];
+        const merged = [...clientDetails, ...clients];
+        const seen = new Set();
+
+        return merged.filter(client => {
+            const key = client.token || `${normalizePhone(client.phone)}:${client.name}`;
+            if (!client.token || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    },
+
+    getClient(id) {
+        return db.collection('clients').doc(id).get().then(doc => doc.exists
+            ? { id: doc.id, ...doc.data(), createdAt: timestampToIso(doc.data().createdAt) }
+            : null
+        );
+    },
+
     async getClientByTokenAndPhone(token, phone) {
         const normalizedPhone = normalizePhone(phone);
-        const snapshot = await db.collection('clients')
-            .where('token', '==', token)
-            .get();
-
-        const matchingClients = snapshot.docs.filter(doc => normalizePhone(doc.data().phone) === normalizedPhone);
+        const [clientsSnapshot, clientDetailsSnapshot] = await Promise.all([
+            db.collection('clients').where('token', '==', token).get().catch(() => null),
+            db.collection('clientDetails').where('token', '==', token).get().catch(() => null)
+        ]);
+        const docs = [
+            ...(clientsSnapshot ? clientsSnapshot.docs.map(doc => ({ doc, collection: 'clients' })) : []),
+            ...(clientDetailsSnapshot ? clientDetailsSnapshot.docs.map(doc => ({ doc, collection: 'clientDetails' })) : [])
+        ];
+        const matchingClients = docs.filter(item => {
+            const data = item.doc.data();
+            return normalizePhone(data.phone || data.phoneNumber) === normalizedPhone;
+        });
 
         if (matchingClients.length > 0) {
-            return { id: matchingClients[0].id, ...matchingClients[0].data() };
+            const match = matchingClients[0];
+            return { id: match.doc.id, collection: match.collection, ...match.doc.data() };
         }
         return null;
     },
@@ -158,25 +211,32 @@ window.v2Firebase = {
     // Client Gallery Operations
     // ============================================
 
-    async uploadClientGalleryImage(clientId, file) {
+    async uploadClientGalleryImage(clientId, file, client = {}) {
         const storageRef = firebase.storage().ref();
-        const imageId = db.collection('clients').doc(clientId).collection('gallery').doc().id;
-        const filePath = `client_galleries/${clientId}/${imageId}_${file.name}`;
+        const collectionName = client.collection || 'clients';
+        const clientToken = client.token || '';
+        const imageId = db.collection(collectionName).doc(clientId).collection('gallery').doc().id;
+        const filePath = `client_galleries/${clientToken || clientId}/${imageId}_${file.name}`;
         const fileRef = storageRef.child(filePath);
         await fileRef.put(file);
         const downloadURL = await fileRef.getDownloadURL();
 
-        await db.collection('clients').doc(clientId).collection('gallery').doc(imageId).set({
+        await db.collection(collectionName).doc(clientId).collection('gallery').doc(imageId).set({
             id: imageId,
             url: downloadURL,
             path: filePath,
+            token: clientToken,
             uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        await db.collection(collectionName).doc(clientId).set({
+            galleryStatus: 'uploaded',
+            galleryUploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
         return { id: imageId, url: downloadURL };
     },
 
-    async getClientGallery(clientId) {
-        const snapshot = await db.collection('clients').doc(clientId).collection('gallery').orderBy('uploadedAt', 'asc').get();
+    async getClientGallery(clientId, collectionName = 'clients') {
+        const snapshot = await db.collection(collectionName).doc(clientId).collection('gallery').orderBy('uploadedAt', 'asc').get();
         return {
             clientId: clientId,
             images: snapshot.docs.map(doc => ({
@@ -190,18 +250,120 @@ window.v2Firebase = {
     // Client Selection Operations
     // ============================================
 
-    async savePhotoSelection(clientId, selectedImageIds) {
+    async savePhotoSelection(clientId, selectedImageIds, collectionName = 'clients') {
         console.log(`Client ${clientId} selected photos:`, selectedImageIds);
-        return db.collection('clientSelections').doc(clientId).set({
+        const payload = {
             clientId: clientId,
+            collection: collectionName,
             selectedImageIds: selectedImageIds,
+            selectedCount: selectedImageIds.length,
+            status: 'submitted',
             submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        await db.collection('clientSelections').doc(clientId).set(payload, { merge: true });
+        await db.collection(collectionName).doc(clientId).set({
+            galleryStatus: 'selection-submitted',
+            selectionSubmittedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
+        return payload;
     },
 
     async getClientSelections(clientId) {
         const doc = await db.collection('clientSelections').doc(clientId).get();
-        return doc.exists ? doc.data() : null;
+        return doc.exists ? { id: doc.id, ...doc.data(), submittedAt: timestampToIso(doc.data().submittedAt) } : null;
+    },
+
+    updateClientGalleryStatus(client, payload) {
+        if (!client || !client.id) return Promise.resolve();
+        const updates = {
+            ...payload,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        const writes = [
+            db.collection(client.collection || 'clients').doc(client.id).set(updates, { merge: true })
+        ];
+
+        if (payload.galleryStatus === 'viewed') {
+            writes.push(db.collection('clientSelections').doc(client.id).set({
+                clientId: client.id,
+                collection: client.collection || 'clients',
+                token: client.token || '',
+                viewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'viewed'
+            }, { merge: true }));
+        }
+
+        return Promise.all(writes);
+    },
+
+    markSelectionStarted(client, selectedImageIds = []) {
+        if (!client || !client.id) return Promise.resolve();
+        return db.collection('clientSelections').doc(client.id).set({
+            clientId: client.id,
+            collection: client.collection || 'clients',
+            token: client.token || '',
+            status: 'started',
+            selectedImageIds,
+            selectedCount: selectedImageIds.length,
+            startedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+    },
+
+    watchClientSelection(clientId, callback) {
+        return db.collection('clientSelections').doc(clientId).onSnapshot(doc => {
+            callback(doc.exists ? { id: doc.id, ...doc.data(), submittedAt: timestampToIso(doc.data().submittedAt) } : null);
+        });
+    },
+
+    // ============================================
+    // Album Preview Operations
+    // ============================================
+
+    async uploadAlbumPreviewPdf(client, file) {
+        if (!client || !client.token) {
+            throw new Error('Client token is required for album preview upload.');
+        }
+        if (!file || (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name || ''))) {
+            throw new Error('Only PDF files can be uploaded.');
+        }
+
+        const storageRef = firebase.storage().ref();
+        const filePath = `album-previews/${client.token}/album.pdf`;
+        const fileRef = storageRef.child(filePath);
+        await fileRef.put(file, { contentType: 'application/pdf' });
+        const pdfURL = await fileRef.getDownloadURL();
+        const payload = {
+            clientName: client.name || client.clientName || 'Unnamed Client',
+            phoneNumber: client.phone || client.phoneNumber || '',
+            token: client.token,
+            pdfURL,
+            storagePath: filePath,
+            status: 'active',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection('albumPreviews').doc(client.token).set(payload, { merge: true });
+        return {
+            ...payload,
+            createdAt: new Date().toISOString()
+        };
+    },
+
+    async getAlbumPreviewByTokenAndPhone(token, phone) {
+        const normalizedPhone = normalizePhone(phone);
+        const doc = await db.collection('albumPreviews').doc(String(token || '').trim()).get();
+        if (!doc.exists) return null;
+
+        const data = doc.data();
+        if (normalizePhone(data.phoneNumber) !== normalizedPhone) {
+            return null;
+        }
+
+        return {
+            id: doc.id,
+            ...data,
+            createdAt: timestampToIso(data.createdAt)
+        };
     },
 
 };

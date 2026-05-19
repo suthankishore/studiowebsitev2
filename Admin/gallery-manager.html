@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Gallery Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="admin-panel-page">
+    <div class="admin-panel-shell">
+        <button type="button" class="admin-sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="admin-sidebar-backdrop" data-admin-sidebar-backdrop></div>
+        <aside class="admin-sidebar">
+            <img src="../Assets/logo.png" alt="V2 Cinematic Studio Admin" class="admin-sidebar-logo">
+            <nav class="admin-sidebar-nav">
+                <a href="dashboard.html" class="admin-sidebar-link">Dashboard</a>
+                <a href="bookings.html" class="admin-sidebar-link">Bookings</a>
+                <a href="client-details.html" class="admin-sidebar-link">Client Details</a>
+                <a href="gallery-manager.html" class="admin-sidebar-link active">Gallery Manager</a>
+                <a href="album-preview-upload.html" class="admin-sidebar-link">Album Preview</a>
+                <button type="button" class="admin-sidebar-link admin-sidebar-logout" id="adminLogout">Logout</button>
+            </nav>
+        </aside>
+
+        <main class="admin-main gallery-manager-page" id="adminGalleryManagerRoot">
+            <div class="admin-page-header">
+                <h1>Gallery Manager</h1>
+                <p>A premium workflow for uploading galleries, sending access, tracking selections, and downloading client favorites.</p>
+            </div>
+
+            <section class="gallery-manager-info-bar">
+                <div class="gallery-manager-info-item">
+                    <span>Client Name</span>
+                    <strong id="galleryManagerClientName">Select Client</strong>
+                </div>
+                <div class="gallery-manager-info-item">
+                    <span>Phone Number</span>
+                    <strong id="galleryManagerClientPhone">-</strong>
+                </div>
+                <div class="gallery-manager-info-item">
+                    <span>Event Type</span>
+                    <strong id="galleryManagerClientEvent">-</strong>
+                </div>
+                <div class="gallery-manager-info-item">
+                    <span>Token</span>
+                    <strong id="galleryManagerClientToken">-</strong>
+                </div>
+                <div class="gallery-manager-info-item">
+                    <span>Gallery Status</span>
+                    <strong id="galleryManagerGalleryStatus">Waiting</strong>
+                </div>
+            </section>
+
+            <div class="gallery-manager-layout">
+                <div class="gallery-manager-left">
+                    <section class="gallery-manager-card">
+                        <div class="gallery-manager-card-header">
+                            <span>Step 1</span>
+                            <h2>Select Client</h2>
+                        </div>
+                        <label class="admin-field admin-field-full gallery-manager-select">
+                            <span>Select Client</span>
+                            <select id="galleryManagerClientSelect">
+                                <option value="">Loading clients...</option>
+                            </select>
+                        </label>
+                    </section>
+
+                    <section class="gallery-manager-card">
+                        <div class="gallery-manager-card-header">
+                            <span>Step 2</span>
+                            <h2>Upload Gallery</h2>
+                        </div>
+
+                        <label class="gallery-manager-drop-zone" id="galleryManagerDropZone" for="galleryManagerImages">
+                            <span class="gallery-manager-upload-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <path d="m17 8-5-5-5 5"></path>
+                                    <path d="M12 3v12"></path>
+                                </svg>
+                            </span>
+                            <strong>Drag & Drop Images Here</strong>
+                            <small>or Choose Images</small>
+                        </label>
+                        <input class="gallery-manager-file-input" type="file" id="galleryManagerImages" accept="image/*" multiple>
+
+                        <div class="gallery-manager-upload-meta">
+                            <strong id="galleryManagerFileCount">No images selected</strong>
+                            <span id="galleryManagerProgressText">Waiting for images</span>
+                        </div>
+                        <div class="gallery-manager-progress">
+                            <span id="galleryManagerProgressBar"></span>
+                        </div>
+
+                        <div class="gallery-manager-preview-grid" id="galleryManagerPreviewGrid">
+                            <p class="admin-empty-state is-visible">Selected image previews will appear here.</p>
+                        </div>
+
+                        <div class="gallery-manager-actions">
+                            <button type="button" class="admin-primary-button gallery-manager-primary" id="galleryManagerUploadButton">Upload Gallery</button>
+                        </div>
+                        <p id="galleryManagerUploadMessage" class="admin-form-message"></p>
+
+                        <div class="gallery-manager-success" id="galleryManagerUploadSuccess" hidden>
+                            <strong>Gallery Uploaded Successfully &#10003;</strong>
+                            <button type="button" class="gallery-manager-whatsapp" id="galleryManagerSendButton">
+                                <span>Send Client Access</span>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+
+                <aside class="gallery-manager-right">
+                    <section class="gallery-manager-card gallery-manager-status-panel">
+                        <div class="gallery-manager-card-header">
+                            <span>Client Selection</span>
+                            <h2>Status</h2>
+                        </div>
+                        <div class="gallery-manager-status-profile">
+                            <div>
+                                <span>Client Name</span>
+                                <strong id="galleryManagerStatusClientName">Select Client</strong>
+                            </div>
+                            <div>
+                                <span>Phone Number</span>
+                                <strong id="galleryManagerStatusClientPhone">-</strong>
+                            </div>
+                        </div>
+                        <div class="gallery-manager-selection-state">
+                            <span>Status</span>
+                            <strong id="galleryManagerSelectionStatus">Pending</strong>
+                            <small id="galleryManagerSelectedMiniCount">0 Images Selected</small>
+                        </div>
+                        <button type="button" class="admin-primary-button gallery-manager-view-button" id="galleryManagerViewSelectedButton" disabled>View Selected Images</button>
+                    </section>
+                </aside>
+            </div>
+
+            <div class="gallery-manager-modal" id="galleryManagerSelectedModal" hidden>
+                <div class="gallery-manager-modal-shell">
+                    <div class="gallery-manager-modal-header">
+                        <button type="button" class="gallery-manager-back-button" id="galleryManagerModalBack">← Back</button>
+                        <strong id="galleryManagerModalCount">0 Images Selected</strong>
+                    </div>
+                    <div class="gallery-manager-selected-grid" id="galleryManagerSelectedGrid">
+                        <p class="admin-empty-state is-visible">Selections will appear here after the client submits favorites.</p>
+                    </div>
+                    <div class="gallery-manager-modal-footer">
+                        <button type="button" class="admin-primary-button gallery-manager-primary" id="galleryManagerDownloadButton" disabled>Download Selected Images</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/admin.js"></script>
+</body>
+</html>

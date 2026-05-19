@@ -1161,3 +1161,354 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(section);
     });
 });
+
+// ============================================
+// CLIENT GALLERY LOGIN & PHOTO SELECTION
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const galleryLoginForm = document.getElementById('galleryLoginForm');
+    const galleryContent = document.getElementById('clientGalleryContent');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const selectionCounter = document.getElementById('selectionCounter');
+    const submitSelectionBtn = document.getElementById('submitSelectionBtn');
+    const loginMessage = document.getElementById('galleryLoginMessage');
+    const selectionMessage = document.getElementById('selectionMessage');
+    const galleryTitle = document.getElementById('galleryTitle');
+    const gallerySubtitle = document.getElementById('gallerySubtitle');
+    let currentClient = null;
+    let galleryImages = [];
+    let selectedImageIds = new Set();
+
+    if (!galleryLoginForm || !galleryContent || !galleryGrid) return;
+
+    function normalizeToken(value) {
+        return String(value || '').trim().toUpperCase();
+    }
+
+    function setLoginMessage(text) {
+        if (loginMessage) loginMessage.textContent = text || '';
+    }
+
+    function setSelectionMessage(text) {
+        if (selectionMessage) selectionMessage.textContent = text || '';
+    }
+
+    function updateCounter() {
+        if (selectionCounter) {
+            selectionCounter.textContent = selectedImageIds.size;
+        }
+    }
+
+    function renderGallery() {
+        galleryGrid.innerHTML = galleryImages.length
+            ? galleryImages.map(image => `
+                <button type="button" class="gallery-item" data-image-id="${image.id}" aria-label="Select photo">
+                    <img src="${image.url}" alt="Private gallery preview" draggable="false">
+                    <span class="selection-overlay">
+                        <span class="selection-tick">✓</span>
+                    </span>
+                </button>
+            `).join('')
+            : '<p class="empty-text">No gallery images are available yet.</p>';
+        updateCounter();
+    }
+
+    galleryLoginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const token = normalizeToken(document.getElementById('clientToken').value);
+        const phone = document.getElementById('clientPhone').value.trim();
+
+        if (!token || !phone) {
+            setLoginMessage('Enter your token and phone number.');
+            return;
+        }
+
+        const submitButton = galleryLoginForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Opening Gallery...';
+        }
+        setLoginMessage('');
+
+        try {
+            currentClient = await window.v2Firebase.getClientByTokenAndPhone(token, phone);
+            if (!currentClient) {
+                setLoginMessage('Invalid token or phone number. Please check the details sent by the studio.');
+                return;
+            }
+
+            await window.v2Firebase.updateClientGalleryStatus(currentClient, {
+                galleryStatus: 'viewed',
+                galleryViewedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            const gallery = await window.v2Firebase.getClientGallery(currentClient.id, currentClient.collection || 'clients');
+            galleryImages = gallery.images || [];
+            selectedImageIds = new Set();
+
+            if (galleryTitle) galleryTitle.textContent = `${currentClient.name || 'Your'} Gallery`;
+            if (gallerySubtitle) gallerySubtitle.textContent = 'Select your favorite photos and submit them to V2 Cinematic Studio.';
+            galleryLoginForm.style.display = 'none';
+            galleryContent.style.display = 'block';
+            renderGallery();
+        } catch (error) {
+            console.error('Could not open client gallery:', error);
+            setLoginMessage('Unable to open your gallery right now.');
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Access Gallery';
+            }
+        }
+    });
+
+    galleryGrid.addEventListener('click', async function(event) {
+        const item = event.target.closest('.gallery-item');
+        if (!item || !currentClient) return;
+
+        const imageId = item.dataset.imageId;
+        if (selectedImageIds.has(imageId)) {
+            selectedImageIds.delete(imageId);
+            item.classList.remove('selected');
+        } else {
+            selectedImageIds.add(imageId);
+            item.classList.add('selected');
+        }
+        await window.v2Firebase.markSelectionStarted(currentClient, Array.from(selectedImageIds));
+        updateCounter();
+        setSelectionMessage('');
+    });
+
+    if (submitSelectionBtn) {
+        submitSelectionBtn.addEventListener('click', async function() {
+            if (!currentClient) return;
+            if (!selectedImageIds.size) {
+                setSelectionMessage('Select at least one photo before submitting.');
+                return;
+            }
+
+            submitSelectionBtn.disabled = true;
+            submitSelectionBtn.textContent = 'Submitting...';
+
+            try {
+                await window.v2Firebase.savePhotoSelection(
+                    currentClient.id,
+                    Array.from(selectedImageIds),
+                    currentClient.collection || 'clients'
+                );
+                setSelectionMessage('Your selection has been submitted successfully.');
+                submitSelectionBtn.textContent = 'Selection Submitted';
+            } catch (error) {
+                console.error('Could not submit photo selection:', error);
+                setSelectionMessage('Could not submit your selection right now.');
+                submitSelectionBtn.disabled = false;
+                submitSelectionBtn.textContent = 'Submit Selection';
+            }
+        });
+    }
+});
+
+// ============================================
+// PRIVATE ALBUM PREVIEW LOGIC
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const albumForm = document.getElementById('albumPreviewLoginForm');
+    const albumViewerSection = document.getElementById('albumViewerSection');
+    const albumLoginSection = document.getElementById('albumLoginSection');
+
+    if (!albumForm || !albumViewerSection) return;
+
+    const tokenInput = document.getElementById('albumPreviewToken');
+    const phoneInput = document.getElementById('albumPreviewPhone');
+    const accessButton = document.getElementById('albumPreviewAccessButton');
+    const loginMessage = document.getElementById('albumPreviewLoginMessage');
+    const loading = document.getElementById('albumBookLoading');
+    const flipBookElement = document.getElementById('albumFlipBook');
+    const stage = document.getElementById('albumBookStage');
+    const title = document.getElementById('albumViewerTitle');
+    const prevButton = document.getElementById('albumPrevButton');
+    const nextButton = document.getElementById('albumNextButton');
+    const fullscreenButton = document.getElementById('albumFullscreenButton');
+    let pageFlip = null;
+
+    function setMessage(text) {
+        if (loginMessage) {
+            loginMessage.textContent = text || '';
+        }
+    }
+
+    function normalizeToken(value) {
+        return String(value || '').trim().toUpperCase();
+    }
+
+    function setPreviewProtection() {
+        document.addEventListener('contextmenu', function(event) {
+            if (event.target.closest('.album-viewer-section')) {
+                event.preventDefault();
+            }
+        });
+
+        document.addEventListener('dragstart', function(event) {
+            if (event.target.closest('.album-viewer-section')) {
+                event.preventDefault();
+            }
+        });
+    }
+
+    function setLoading(text) {
+        if (loading) {
+            loading.textContent = text;
+            loading.hidden = false;
+        }
+    }
+
+    function hideLoading() {
+        if (loading) {
+            loading.hidden = true;
+        }
+    }
+
+    async function renderPdfPages(pdfURL) {
+        if (!window.pdfjsLib) {
+            throw new Error('PDF preview library is not available.');
+        }
+
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await window.pdfjsLib.getDocument({ url: pdfURL, withCredentials: false }).promise;
+        const pages = [];
+
+        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+            setLoading(`Rendering album page ${pageNumber} of ${pdf.numPages}...`);
+            const page = await pdf.getPage(pageNumber);
+            const viewport = page.getViewport({ scale: 1.65 });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d', { alpha: false });
+            canvas.width = Math.floor(viewport.width);
+            canvas.height = Math.floor(viewport.height);
+
+            await page.render({
+                canvasContext: context,
+                viewport
+            }).promise;
+
+            pages.push({
+                pageNumber,
+                image: canvas.toDataURL('image/jpeg', 0.92)
+            });
+        }
+
+        return pages;
+    }
+
+    function buildPageNode(page) {
+        const pageNode = document.createElement('div');
+        pageNode.className = 'album-flip-page';
+        pageNode.innerHTML = `
+            <img src="${page.image}" alt="Album preview page ${page.pageNumber}" draggable="false">
+            <span class="album-page-watermark">V2 Cinematic Studio</span>
+        `;
+        return pageNode;
+    }
+
+    function initFlipbook(pages) {
+        if (!window.St || !window.St.PageFlip) {
+            throw new Error('Page flip library is not available.');
+        }
+
+        flipBookElement.textContent = '';
+        pages.forEach(page => {
+            flipBookElement.appendChild(buildPageNode(page));
+        });
+
+        pageFlip = new window.St.PageFlip(flipBookElement, {
+            width: 520,
+            height: 720,
+            size: 'stretch',
+            minWidth: 280,
+            maxWidth: 560,
+            minHeight: 390,
+            maxHeight: 760,
+            maxShadowOpacity: 0.35,
+            showCover: false,
+            mobileScrollSupport: false,
+            useMouseEvents: true,
+            swipeDistance: 18,
+            drawShadow: true,
+            flippingTime: 900
+        });
+
+        pageFlip.loadFromHTML(flipBookElement.querySelectorAll('.album-flip-page'));
+    }
+
+    async function openAlbumPreview(preview) {
+        if (title) {
+            title.textContent = `${preview.clientName || 'Private'} Album Preview`;
+        }
+
+        albumLoginSection.hidden = true;
+        albumViewerSection.hidden = false;
+        setLoading('Opening your private album preview...');
+
+        const pages = await renderPdfPages(preview.pdfURL);
+        initFlipbook(pages);
+        hideLoading();
+    }
+
+    albumForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const token = normalizeToken(tokenInput.value);
+        const phone = phoneInput.value.trim();
+
+        if (!token || !phone) {
+            setMessage('Enter your token and phone number.');
+            return;
+        }
+
+        if (accessButton) {
+            accessButton.disabled = true;
+            accessButton.textContent = 'Opening Preview...';
+        }
+        setMessage('');
+
+        try {
+            const preview = await window.v2Firebase.getAlbumPreviewByTokenAndPhone(token, phone);
+            if (!preview || !preview.pdfURL) {
+                setMessage('Invalid token or phone number. Please check the details sent by the studio.');
+                return;
+            }
+            await openAlbumPreview(preview);
+        } catch (error) {
+            console.error('Could not open album preview:', error);
+            setMessage(error.message || 'Unable to open this album preview right now.');
+        } finally {
+            if (accessButton) {
+                accessButton.disabled = false;
+                accessButton.textContent = 'Access Preview';
+            }
+        }
+    });
+
+    if (prevButton) {
+        prevButton.addEventListener('click', function() {
+            if (pageFlip) pageFlip.flipPrev();
+        });
+    }
+
+    if (nextButton) {
+        nextButton.addEventListener('click', function() {
+            if (pageFlip) pageFlip.flipNext();
+        });
+    }
+
+    if (fullscreenButton && stage) {
+        fullscreenButton.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+                stage.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        });
+    }
+
+    setPreviewProtection();
+});

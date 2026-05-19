@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Album Preview Upload</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="admin-panel-page">
+    <div class="admin-panel-shell">
+        <button type="button" class="admin-sidebar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="admin-sidebar-backdrop" data-admin-sidebar-backdrop></div>
+        <aside class="admin-sidebar">
+            <img src="../Assets/logo.png" alt="V2 Cinematic Studio Admin" class="admin-sidebar-logo">
+            <nav class="admin-sidebar-nav">
+                <a href="dashboard.html" class="admin-sidebar-link">Dashboard</a>
+                <a href="bookings.html" class="admin-sidebar-link">Bookings</a>
+                <a href="client-details.html" class="admin-sidebar-link">Client Details</a>
+                <a href="gallery-manager.html" class="admin-sidebar-link">Gallery Manager</a>
+                <a href="album-preview-upload.html" class="admin-sidebar-link active">Album Preview</a>
+                <button type="button" class="admin-sidebar-link admin-sidebar-logout" id="adminLogout">Logout</button>
+            </nav>
+        </aside>
+
+        <main class="admin-main album-preview-admin" id="adminAlbumPreviewUploadRoot">
+            <div class="admin-page-header">
+                <h1>Album Preview Upload</h1>
+                <p>Upload private cinematic album previews for clients</p>
+            </div>
+
+            <section class="album-admin-card">
+                <form id="albumPreviewUploadForm" class="admin-form album-preview-form">
+                    <div class="admin-grid">
+                        <label class="admin-field admin-field-full">
+                            <span>Select Client Name</span>
+                            <select id="albumPreviewClientSelect" required>
+                                <option value="">Loading clients...</option>
+                            </select>
+                        </label>
+
+                        <div class="admin-field admin-field-full">
+                            <span>Upload PDF</span>
+                            <label class="album-drop-zone" id="albumPreviewDropZone" for="albumPreviewPdf">
+                                <span class="album-drop-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 16V4"></path>
+                                        <path d="m7 9 5-5 5 5"></path>
+                                        <path d="M20 16.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.5"></path>
+                                    </svg>
+                                </span>
+                                <strong>Drop album PDF here</strong>
+                                <small>or choose a PDF file</small>
+                                <span class="album-file-pill" id="albumPreviewFileName">No PDF selected</span>
+                            </label>
+                            <input class="album-file-input" type="file" id="albumPreviewPdf" accept=".pdf,application/pdf" required>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <button type="submit" class="admin-primary-button album-upload-button" id="albumPreviewUploadButton">Upload Album Preview</button>
+                    </div>
+                    <p id="albumPreviewUploadMessage" class="admin-form-message"></p>
+                </form>
+            </section>
+
+            <section class="album-success-card" id="albumPreviewSuccessCard" hidden>
+                <div class="album-success-orb" aria-hidden="true"></div>
+                <span class="album-success-kicker">Preview Ready</span>
+                <h2>Album Preview Uploaded Successfully</h2>
+                <div class="album-success-grid">
+                    <div>
+                        <small>Client Name</small>
+                        <strong id="albumPreviewSuccessClient">-</strong>
+                    </div>
+                    <div>
+                        <small>Upload Date</small>
+                        <strong id="albumPreviewSuccessDate">-</strong>
+                    </div>
+                    <div>
+                        <small>Status</small>
+                        <strong id="albumPreviewSuccessStatus">Preview Active</strong>
+                    </div>
+                </div>
+                <button type="button" class="admin-primary-button album-whatsapp-button" id="albumPreviewWhatsappButton">Send Preview via WhatsApp</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/admin.js"></script>
+</body>
+</html>

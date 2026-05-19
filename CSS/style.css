@@ -4162,57 +4162,6 @@ img {
     background: #da190b;
 }
 
-/* Client Gallery Upload */
-.gallery-upload-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-}
-
-.gallery-preview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.gallery-preview-item {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.gallery-preview-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.gallery-preview-item .remove-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    transition: background 0.2s ease;
-}
-
-.gallery-preview-item .remove-btn:hover {
-    background: rgba(255, 0, 0, 0.7);
-}
-
 /* ============================================
    GIFTS PAGE STYLES
    ============================================ */
@@ -7028,7 +6977,9 @@ body.package-modal-open {
 
 .client-gallery-section {
     padding: 150px 20px 100px;
-    background: var(--bg-darker);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.12), transparent 32%),
+        var(--bg-darker);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -7041,14 +6992,16 @@ body.package-modal-open {
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 960px;
-    background: rgba(18, 18, 18, 0.6);
+    max-width: 1080px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 44%, rgba(0, 0, 0, 0.38)),
+        rgba(18, 18, 18, 0.68);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
+    border-radius: 30px;
     padding: 60px 50px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 36px 88px rgba(0, 0, 0, 0.66), 0 0 34px rgba(255, 106, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     text-align: center;
 }
 
@@ -7102,7 +7055,7 @@ body.package-modal-open {
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
+    gap: 18px;
     margin-top: 40px;
 }
 
@@ -7110,10 +7063,13 @@ body.package-modal-open {
     position: relative;
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    border-radius: 10px;
+    border-radius: 18px;
     cursor: pointer;
-    border: 2px solid transparent;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0;
+    background: rgba(255, 255, 255, 0.035);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
+    transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .gallery-item img {
@@ -7124,18 +7080,24 @@ body.package-modal-open {
 }
 
 .gallery-item:hover img {
-    transform: scale(1.05);
+    transform: scale(1.08);
+}
+
+.gallery-item:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 106, 0, 0.28);
+    box-shadow: 0 0 26px rgba(255, 106, 0, 0.13), 0 22px 42px rgba(0, 0, 0, 0.44);
 }
 
 .gallery-item.selected {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary), 0 0 15px rgba(255, 106, 0, 0.3);
+    box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.68), 0 0 28px rgba(255, 106, 0, 0.34), 0 24px 48px rgba(0, 0, 0, 0.45);
 }
 
 .selection-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(255, 106, 0, 0.4);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.06), rgba(255, 106, 0, 0.42));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7148,9 +7110,23 @@ body.package-modal-open {
 }
 
 .selection-tick {
+    width: 46px;
+    height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
     color: white;
-    font-size: 30px;
+    background: var(--primary);
+    font-size: 26px;
     font-weight: bold;
+    box-shadow: 0 0 24px rgba(255, 106, 0, 0.48);
+    transform: scale(0.72);
+    transition: transform 0.22s var(--ease-premium);
+}
+
+.gallery-item.selected .selection-tick {
+    transform: scale(1);
 }
 
 .gallery-controls {
@@ -8280,4 +8256,929 @@ body.package-modal-open {
 
 #services-options .service-card{
     min-height:160px;
+}
+
+/* ============================================
+   ADMIN GALLERY MANAGER
+============================================ */
+
+.gallery-manager-page {
+    position: relative;
+}
+
+.gallery-manager-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 76% 12%, rgba(255, 106, 0, 0.12), transparent 30%),
+        radial-gradient(circle at 12% 78%, rgba(255, 106, 0, 0.08), transparent 28%);
+    z-index: 0;
+}
+
+.gallery-manager-page > * {
+    position: relative;
+    z-index: 1;
+}
+
+.gallery-manager-info-bar,
+.gallery-manager-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 106, 0, 0.14);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 44%, rgba(0, 0, 0, 0.38)),
+        rgba(8, 8, 8, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 0 28px rgba(255, 106, 0, 0.08),
+        0 32px 80px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-manager-info-bar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1px;
+    margin-bottom: 18px;
+}
+
+.gallery-manager-info-item {
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.gallery-manager-info-item span,
+.gallery-manager-card-header span,
+.gallery-manager-upload-meta span,
+.gallery-manager-selection-summary span {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.gallery-manager-info-item strong {
+    display: block;
+    color: var(--text-white);
+    font-size: 15px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.gallery-manager-card {
+    padding: clamp(20px, 3vw, 28px);
+    margin-bottom: 18px;
+}
+
+.gallery-manager-card-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.gallery-manager-card-header h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(24px, 3vw, 34px);
+    color: var(--text-white);
+}
+
+.gallery-manager-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.75fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.gallery-manager-right {
+    position: sticky;
+    top: 96px;
+}
+
+.gallery-manager-select select {
+    min-height: 50px;
+}
+
+.gallery-manager-drop-zone {
+    min-height: 190px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    padding: 26px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 28px;
+    border: 1px dashed rgba(255, 106, 0, 0.44);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.14), transparent 42%),
+        rgba(255, 255, 255, 0.035);
+    transition: transform 0.35s var(--ease-premium), border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.gallery-manager-drop-zone:hover,
+.gallery-manager-drop-zone.is-dragging {
+    transform: translateY(-4px);
+    border-color: rgba(255, 106, 0, 0.74);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.22), transparent 44%),
+        rgba(255, 106, 0, 0.055);
+    box-shadow: 0 0 34px rgba(255, 106, 0, 0.18), 0 30px 70px rgba(0, 0, 0, 0.38);
+}
+
+.gallery-manager-upload-icon {
+    width: 58px;
+    height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    border-radius: 18px;
+    background: rgba(255, 106, 0, 0.1);
+    border: 1px solid rgba(255, 106, 0, 0.2);
+    box-shadow: 0 0 26px rgba(255, 106, 0, 0.13);
+}
+
+.gallery-manager-upload-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.gallery-manager-drop-zone strong {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 3vw, 34px);
+    color: var(--text-white);
+}
+
+.gallery-manager-drop-zone small {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.gallery-manager-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gallery-manager-upload-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 16px 0 10px;
+    color: var(--text-white);
+}
+
+.gallery-manager-upload-meta strong {
+    color: var(--primary);
+    letter-spacing: 0.4px;
+}
+
+.gallery-manager-progress {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.gallery-manager-progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--primary), #ffb072);
+    box-shadow: 0 0 18px rgba(255, 106, 0, 0.4);
+    transition: width 0.25s ease;
+}
+
+.gallery-manager-preview-grid,
+.gallery-manager-selected-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.gallery-manager-thumb,
+.gallery-manager-selected-thumb {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.035);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
+}
+
+.gallery-manager-thumb img,
+.gallery-manager-selected-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s var(--ease-premium), filter 0.5s ease;
+}
+
+.gallery-manager-selected-thumb:hover img {
+    transform: scale(1.08);
+    filter: saturate(1.08);
+}
+
+.gallery-manager-actions {
+    margin-top: 18px;
+}
+
+.gallery-manager-primary {
+    min-height: 52px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 18px 36px rgba(255, 106, 0, 0.28);
+}
+
+.gallery-manager-success {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 22px;
+    border: 1px solid rgba(48, 209, 88, 0.22);
+    background: rgba(48, 209, 88, 0.08);
+}
+
+.gallery-manager-success strong {
+    color: #b6f7c5;
+}
+
+.gallery-manager-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    background: linear-gradient(135deg, #25d366, #128c4a);
+    box-shadow: 0 14px 30px rgba(37, 211, 102, 0.24);
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gallery-manager-whatsapp:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 38px rgba(37, 211, 102, 0.34);
+}
+
+.gallery-manager-status-profile {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.gallery-manager-status-profile div,
+.gallery-manager-selection-state {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.gallery-manager-status-profile span,
+.gallery-manager-selection-state span {
+    display: block;
+    margin-bottom: 7px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+
+.gallery-manager-status-profile strong,
+.gallery-manager-selection-state strong {
+    color: var(--text-white);
+    overflow-wrap: anywhere;
+}
+
+.gallery-manager-selection-state {
+    margin-bottom: 16px;
+    border-color: rgba(255, 106, 0, 0.16);
+}
+
+.gallery-manager-selection-state strong {
+    display: block;
+    font-size: 26px;
+    font-family: var(--font-display);
+}
+
+.gallery-manager-selection-state strong.is-ready {
+    color: #b6f7c5;
+    text-shadow: 0 0 18px rgba(48, 209, 88, 0.22);
+}
+
+.gallery-manager-selection-state small {
+    display: block;
+    margin-top: 7px;
+    color: rgba(255, 255, 255, 0.58);
+}
+
+.gallery-manager-view-button {
+    width: 100%;
+    min-height: 52px;
+    border-radius: 999px;
+    opacity: 1;
+    transition: opacity 0.25s ease, filter 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.gallery-manager-view-button:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    filter: grayscale(0.55);
+    box-shadow: 0 0 18px rgba(255, 106, 0, 0.08);
+}
+
+.gallery-manager-view-button:not(:disabled) {
+    box-shadow: 0 0 30px rgba(255, 106, 0, 0.28), 0 18px 36px rgba(255, 106, 0, 0.2);
+}
+
+.gallery-manager-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.gallery-manager-modal[hidden] {
+    display: none;
+}
+
+.gallery-manager-modal-shell {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: clamp(18px, 3vw, 30px);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 106, 0, 0.18);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.12), transparent 34%),
+        rgba(8, 8, 8, 0.92);
+    box-shadow: 0 0 44px rgba(255, 106, 0, 0.12), 0 34px 90px rgba(0, 0, 0, 0.7);
+}
+
+.gallery-manager-modal-header,
+.gallery-manager-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex: 0 0 auto;
+}
+
+.gallery-manager-back-button {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    min-height: 44px;
+    padding: 0 18px;
+    color: var(--text-white);
+    background: rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    font-family: var(--font-body);
+}
+
+.gallery-manager-modal-header strong {
+    color: var(--primary);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.gallery-manager-modal .gallery-manager-selected-grid {
+    flex: 1 1 auto;
+    overflow: auto;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    align-content: start;
+    padding-right: 4px;
+}
+
+.gallery-manager-modal-footer {
+    justify-content: center;
+}
+
+@media (max-width: 1100px) {
+    .gallery-manager-info-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gallery-manager-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-manager-right {
+        position: static;
+    }
+}
+
+@media (max-width: 640px) {
+    .gallery-manager-info-bar {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-manager-card-header,
+    .gallery-manager-upload-meta,
+    .gallery-manager-success,
+    .gallery-manager-modal-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .gallery-manager-modal {
+        padding: 10px;
+    }
+
+    .gallery-manager-modal .gallery-manager-selected-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* ============================================
+   PRIVATE ALBUM PREVIEW SYSTEM
+============================================ */
+
+.album-preview-admin {
+    position: relative;
+}
+
+.album-preview-admin::before,
+.album-preview-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 82% 16%, rgba(255, 106, 0, 0.12), transparent 30%),
+        radial-gradient(circle at 18% 80%, rgba(255, 106, 0, 0.08), transparent 28%);
+    z-index: 0;
+}
+
+.album-preview-admin > *,
+.album-preview-page > * {
+    position: relative;
+    z-index: 1;
+}
+
+.album-admin-card,
+.album-success-card,
+.album-login-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 106, 0, 0.16);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015) 42%, rgba(0, 0, 0, 0.42)),
+        rgba(8, 8, 8, 0.72);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 34px rgba(255, 106, 0, 0.1),
+        0 36px 90px rgba(0, 0, 0, 0.58);
+}
+
+.album-admin-card {
+    padding: clamp(24px, 4vw, 42px);
+}
+
+.album-preview-form {
+    gap: 28px;
+}
+
+.album-drop-zone {
+    min-height: 250px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 10px;
+    padding: 34px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 26px;
+    border: 1px dashed rgba(255, 106, 0, 0.42);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.13), transparent 40%),
+        rgba(255, 255, 255, 0.035);
+    transition: transform 0.35s var(--ease-premium), border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+}
+
+.album-drop-zone:hover,
+.album-drop-zone.is-dragging {
+    transform: translateY(-4px);
+    border-color: rgba(255, 106, 0, 0.72);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.2), transparent 44%),
+        rgba(255, 106, 0, 0.055);
+    box-shadow: 0 0 34px rgba(255, 106, 0, 0.18), 0 28px 60px rgba(0, 0, 0, 0.36);
+}
+
+.album-drop-icon {
+    width: 72px;
+    height: 72px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    border-radius: 22px;
+    background: rgba(255, 106, 0, 0.1);
+    border: 1px solid rgba(255, 106, 0, 0.2);
+    box-shadow: 0 0 26px rgba(255, 106, 0, 0.13);
+}
+
+.album-drop-icon svg {
+    width: 34px;
+    height: 34px;
+}
+
+.album-drop-zone strong {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 600;
+    color: var(--text-white);
+}
+
+.album-drop-zone small {
+    color: var(--text-muted);
+    font-size: 13px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+}
+
+.album-file-pill {
+    max-width: 100%;
+    margin-top: 12px;
+    padding: 9px 15px;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.78);
+    background: rgba(0, 0, 0, 0.34);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.album-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.album-upload-button,
+.album-whatsapp-button,
+.album-access-button {
+    min-height: 56px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 18px 36px rgba(255, 106, 0, 0.28);
+}
+
+.album-upload-button {
+    width: min(100%, 420px);
+}
+
+.album-success-card {
+    margin-top: 28px;
+    padding: clamp(28px, 4vw, 46px);
+}
+
+.album-success-orb {
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 106, 0, 0.2), transparent 68%);
+    filter: blur(4px);
+}
+
+.album-success-kicker,
+.album-login-kicker {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.album-success-card h2,
+.album-login-card h1,
+.album-viewer-header h1 {
+    font-family: var(--font-display);
+    color: var(--text-white);
+}
+
+.album-success-card h2 {
+    margin-bottom: 26px;
+    font-size: clamp(32px, 5vw, 50px);
+}
+
+.album-success-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.album-success-grid div {
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.album-success-grid small {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.album-success-grid strong {
+    color: var(--text-white);
+    font-size: 15px;
+}
+
+.album-preview-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 50% -8%, rgba(255, 106, 0, 0.16), transparent 34%),
+        linear-gradient(180deg, #030303 0%, #0a0a0a 55%, #020202 100%);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.album-preview-shell {
+    min-height: 100vh;
+    padding: 130px 20px 54px;
+}
+
+.album-login-section {
+    min-height: calc(100vh - 184px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.album-login-card {
+    width: min(100%, 520px);
+    padding: clamp(32px, 5vw, 50px);
+    text-align: center;
+}
+
+.album-login-card h1 {
+    font-size: clamp(34px, 7vw, 58px);
+    line-height: 0.98;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.album-login-card p {
+    color: var(--text-muted);
+    line-height: 1.8;
+}
+
+.album-login-form {
+    display: grid;
+    gap: 18px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.album-login-form label {
+    display: grid;
+    gap: 9px;
+}
+
+.album-login-form label span {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.album-login-form input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.055);
+    color: var(--text-white);
+    font-family: var(--font-body);
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.album-login-form input:focus {
+    border-color: rgba(255, 106, 0, 0.68);
+    background: rgba(255, 106, 0, 0.075);
+    box-shadow: 0 0 0 4px rgba(255, 106, 0, 0.1);
+}
+
+.album-login-message {
+    min-height: 22px;
+    text-align: center;
+    color: #ffb17a;
+    font-size: 13px;
+}
+
+.album-viewer-section {
+    width: min(100%, 1220px);
+    margin: 0 auto;
+}
+
+.album-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 18px;
+    margin-bottom: 26px;
+}
+
+.album-viewer-header h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 54px);
+    line-height: 1;
+}
+
+.album-viewer-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.album-control-button {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 106, 0, 0.24);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-white);
+    cursor: pointer;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.album-control-button:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 106, 0, 0.55);
+    background: rgba(255, 106, 0, 0.14);
+    box-shadow: 0 0 26px rgba(255, 106, 0, 0.18), 0 18px 34px rgba(0, 0, 0, 0.34);
+}
+
+.album-control-button svg {
+    width: 21px;
+    height: 21px;
+}
+
+.album-book-stage {
+    position: relative;
+    min-height: min(74vh, 760px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(18px, 3vw, 36px);
+    border-radius: 32px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.14), transparent 42%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)),
+        rgba(0, 0, 0, 0.44);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(255, 106, 0, 0.035), 0 40px 100px rgba(0, 0, 0, 0.66);
+}
+
+.album-book-loading {
+    position: absolute;
+    inset: auto 24px 24px;
+    z-index: 5;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 13px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.album-book {
+    width: min(100%, 1060px);
+    height: min(72vh, 760px);
+}
+
+.album-flip-page {
+    position: relative;
+    overflow: hidden;
+    background: #f8f3ec;
+    box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.12);
+}
+
+.album-flip-page img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.album-page-watermark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-28deg);
+    color: rgba(255, 255, 255, 0.22);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+    font-size: clamp(24px, 5vw, 52px);
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    pointer-events: none;
+    mix-blend-mode: difference;
+}
+
+.album-preview-note {
+    margin-top: 18px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.52);
+    font-size: 12px;
+    letter-spacing: 1.2px;
+}
+
+@media (max-width: 860px) {
+    .album-success-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .album-viewer-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .album-book {
+        height: 66vh;
+    }
+}
+
+@media (max-width: 560px) {
+    .album-preview-shell {
+        padding-top: 112px;
+    }
+
+    .album-drop-zone {
+        min-height: 220px;
+        padding: 26px 18px;
+    }
+
+    .album-viewer-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .album-control-button {
+        width: 44px;
+        height: 44px;
+    }
 }

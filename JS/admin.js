@@ -111,13 +111,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const worksVideoGallery = document.getElementById('worksVideoGallery');
     const dashboardRoot = document.getElementById('adminDashboardRoot');
     const bookingsRoot = document.getElementById('adminBookingsRoot');
-    const galleryUploadRoot = document.getElementById('adminGalleryUploadRoot');
-    const selectionViewRoot = document.getElementById('adminSelectionViewRoot');
+    const galleryManagerRoot = document.getElementById('adminGalleryManagerRoot');
     const clientDetailsRoot = document.getElementById('adminClientDetailsRoot');
     const paymentTrackerRoot = document.getElementById('adminPaymentTrackerRoot');
     const worksEditorRoot = document.getElementById('adminWorksEditorRoot');
     const packagesEditorRoot = document.getElementById('adminPackagesEditorRoot');
     const giftsEditorRoot = document.getElementById('adminGiftsEditorRoot');
+    const albumPreviewUploadRoot = document.getElementById('adminAlbumPreviewUploadRoot');
     const logoutButton = document.getElementById('adminLogout');
 
     if (paymentTrackerRoot && (!window.v2Firebase || !window.v2Firebase.onAdminAuthStateChanged)) {
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    if (dashboardRoot || bookingsRoot || galleryUploadRoot || selectionViewRoot || clientDetailsRoot || paymentTrackerRoot || worksEditorRoot || packagesEditorRoot || giftsEditorRoot) {
+    if (dashboardRoot || bookingsRoot || galleryManagerRoot || clientDetailsRoot || paymentTrackerRoot || worksEditorRoot || packagesEditorRoot || giftsEditorRoot || albumPreviewUploadRoot) {
         if (!window.v2Firebase || !window.v2Firebase.onAdminAuthStateChanged) {
             return;
         }
@@ -201,12 +201,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 initAdminBookings();
             }
 
-            if (galleryUploadRoot) {
-                initAdminGalleryUpload();
-            }
-
-            if (selectionViewRoot) {
-                initAdminSelectionView();
+            if (galleryManagerRoot) {
+                initAdminGalleryManager();
             }
 
             if (clientDetailsRoot) {
@@ -229,6 +225,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 initAdminGiftsEditor();
             }
 
+            if (albumPreviewUploadRoot) {
+                initAdminAlbumPreviewUpload();
+            }
 
         });
     }
@@ -489,158 +488,6 @@ async function initAdminBookings() {
     }
 
     loadBookings();
-}
-
-async function initAdminGalleryUpload() {
-    const form = document.getElementById('clientGalleryUploadForm');
-    const clientSelect = document.getElementById('clientSelect');
-    const fileInput = document.getElementById('galleryImages');
-    const previewGrid = document.getElementById('imagePreviews');
-    const message = document.getElementById('galleryUploadMessage');
-    const uploadButton = document.getElementById('uploadGalleryBtn');
-
-    if (!form || !clientSelect || !fileInput) return;
-
-    try {
-        const clients = await window.v2Firebase.getClients();
-        clientSelect.innerHTML = '<option value="">-- Select a client --</option>' + clients.map(client => `
-            <option value="${v2EscapeHtml(client.id)}">${v2EscapeHtml(client.name || 'Unnamed Client')} - ${v2EscapeHtml(client.phone || client.email || 'No contact')}</option>
-        `).join('');
-    } catch (error) {
-        console.error('Could not load clients for gallery upload:', error);
-        if (message) {
-            message.textContent = 'Unable to load clients right now.';
-        }
-    }
-
-    fileInput.addEventListener('change', function() {
-        const files = Array.from(fileInput.files || []);
-        if (!previewGrid) return;
-
-        previewGrid.innerHTML = files.map(file => `
-            <div class="gallery-preview-item">
-                <img src="${v2EscapeHtml(URL.createObjectURL(file))}" alt="${v2EscapeHtml(file.name)}">
-            </div>
-        `).join('');
-    });
-
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const clientId = clientSelect.value;
-        const files = Array.from(fileInput.files || []);
-
-        if (!clientId || !files.length) {
-            if (message) {
-                message.textContent = 'Select a client and at least one image.';
-            }
-            return;
-        }
-
-        if (uploadButton) {
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Uploading...';
-        }
-
-        try {
-            for (const file of files) {
-                await window.v2Firebase.uploadClientGalleryImage(clientId, file);
-            }
-            form.reset();
-            if (previewGrid) {
-                previewGrid.innerHTML = '';
-            }
-            if (message) {
-                message.textContent = 'Gallery uploaded successfully.';
-            }
-        } catch (error) {
-            console.error('Could not upload gallery:', error);
-            if (message) {
-                message.textContent = 'Could not upload gallery right now.';
-            }
-        } finally {
-            if (uploadButton) {
-                uploadButton.disabled = false;
-                uploadButton.textContent = 'Upload Gallery';
-            }
-        }
-    });
-}
-
-async function initAdminSelectionView() {
-    const clientSelect = document.getElementById('clientSelect');
-    const previewGrid = document.getElementById('selectedImagePreviews');
-    const noSelectionMessage = document.getElementById('noSelectionMessage');
-    const downloadButton = document.getElementById('downloadFullQualityBtn');
-    const message = document.getElementById('selectionViewMessage');
-    let selectedImages = [];
-
-    if (!clientSelect || !previewGrid) return;
-
-    function renderSelectedImages(images) {
-        selectedImages = images;
-        const noImages = images.length === 0;
-        if (noSelectionMessage) {
-            noSelectionMessage.classList.toggle('is-visible', noImages);
-        }
-        if (downloadButton) {
-            downloadButton.disabled = noImages;
-        }
-
-        previewGrid.innerHTML = noImages
-            ? '<p id="noSelectionMessage" class="admin-empty-state is-visible">No selections found for this client.</p>'
-            : images.map(image => `
-                <a class="gallery-preview-item" href="${v2EscapeHtml(image.url)}" target="_blank" rel="noopener">
-                    <img src="${v2EscapeHtml(image.url)}" alt="Selected client image">
-                </a>
-            `).join('');
-    }
-
-    async function loadSelection(clientId) {
-        if (!clientId) {
-            renderSelectedImages([]);
-            return;
-        }
-
-        try {
-            const [selection, gallery] = await Promise.all([
-                window.v2Firebase.getClientSelections(clientId),
-                window.v2Firebase.getClientGallery(clientId)
-            ]);
-            const selectedIds = new Set(selection && Array.isArray(selection.selectedImageIds) ? selection.selectedImageIds : []);
-            const images = gallery.images.filter(image => selectedIds.has(image.id));
-            renderSelectedImages(images);
-        } catch (error) {
-            console.error('Could not load client selections:', error);
-            renderSelectedImages([]);
-            if (message) {
-                message.textContent = 'Unable to load selections right now.';
-            }
-        }
-    }
-
-    try {
-        const clients = await window.v2Firebase.getClients();
-        clientSelect.innerHTML = '<option value="">-- Select a client --</option>' + clients.map(client => `
-            <option value="${v2EscapeHtml(client.id)}">${v2EscapeHtml(client.name || 'Unnamed Client')} - ${v2EscapeHtml(client.phone || client.email || 'No contact')}</option>
-        `).join('');
-    } catch (error) {
-        console.error('Could not load clients for selections:', error);
-        if (message) {
-            message.textContent = 'Unable to load clients right now.';
-        }
-    }
-
-    clientSelect.addEventListener('change', function() {
-        loadSelection(clientSelect.value);
-    });
-
-    if (downloadButton) {
-        downloadButton.addEventListener('click', function() {
-            selectedImages.forEach(image => {
-                window.open(image.url, '_blank', 'noopener');
-            });
-        });
-    }
 }
 
 async function initAdminClientDetails() {
@@ -1182,4 +1029,483 @@ async function initAdminGiftsEditor() {
             giftsMessage.textContent = 'Could not save gift content right now.';
         }
     });
+}
+
+async function initAdminAlbumPreviewUpload() {
+    const form = document.getElementById('albumPreviewUploadForm');
+    const clientSelect = document.getElementById('albumPreviewClientSelect');
+    const fileInput = document.getElementById('albumPreviewPdf');
+    const dropZone = document.getElementById('albumPreviewDropZone');
+    const fileName = document.getElementById('albumPreviewFileName');
+    const submitButton = document.getElementById('albumPreviewUploadButton');
+    const message = document.getElementById('albumPreviewUploadMessage');
+    const successCard = document.getElementById('albumPreviewSuccessCard');
+    const successClient = document.getElementById('albumPreviewSuccessClient');
+    const successDate = document.getElementById('albumPreviewSuccessDate');
+    const successStatus = document.getElementById('albumPreviewSuccessStatus');
+    const whatsappButton = document.getElementById('albumPreviewWhatsappButton');
+    let clients = [];
+    let selectedFile = null;
+    let lastUpload = null;
+
+    if (!form || !clientSelect || !fileInput) return;
+
+    function setMessage(text) {
+        if (message) {
+            message.textContent = text || '';
+        }
+    }
+
+    function getSelectedClient() {
+        return clients.find(client => client.token === clientSelect.value) || null;
+    }
+
+    function setSelectedFile(file) {
+        if (!file) return;
+        if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
+            selectedFile = null;
+            fileInput.value = '';
+            if (fileName) fileName.textContent = 'Only PDF files are accepted.';
+            setMessage('Please choose a PDF album preview.');
+            return;
+        }
+
+        selectedFile = file;
+        if (fileName) {
+            fileName.textContent = file.name;
+        }
+        setMessage('');
+    }
+
+    function previewLink() {
+        return new URL('../UI/album-view.html', window.location.href).href;
+    }
+
+    try {
+        clients = await window.v2Firebase.getAlbumPreviewClients();
+        clientSelect.innerHTML = '<option value="">Select client name</option>' + clients.map(client => {
+            const label = `${client.name || 'Unnamed Client'} (${client.phone || client.phoneNumber || 'No phone'})`;
+            return `<option value="${v2EscapeHtml(client.token)}">${v2EscapeHtml(label)}</option>`;
+        }).join('');
+
+        if (!clients.length) {
+            setMessage('No clients with tokens found in clientDetails or clients collection.');
+        }
+    } catch (error) {
+        console.error('Could not load album preview clients:', error);
+        setMessage('Unable to load clients right now.');
+    }
+
+    fileInput.addEventListener('change', function() {
+        setSelectedFile(fileInput.files && fileInput.files[0]);
+    });
+
+    if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, function(event) {
+                event.preventDefault();
+                dropZone.classList.add('is-dragging');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, function(event) {
+                event.preventDefault();
+                dropZone.classList.remove('is-dragging');
+            });
+        });
+
+        dropZone.addEventListener('drop', function(event) {
+            const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+            setSelectedFile(file);
+        });
+    }
+
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const client = getSelectedClient();
+
+        if (!client) {
+            setMessage('Select a client before uploading.');
+            return;
+        }
+
+        if (!selectedFile) {
+            setMessage('Choose a PDF album preview.');
+            return;
+        }
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Uploading Preview...';
+        }
+        setMessage('');
+
+        try {
+            lastUpload = await window.v2Firebase.uploadAlbumPreviewPdf(client, selectedFile);
+            const uploadedDate = new Date(lastUpload.createdAt || Date.now());
+
+            if (successClient) successClient.textContent = lastUpload.clientName;
+            if (successDate) successDate.textContent = uploadedDate.toLocaleString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            if (successStatus) successStatus.textContent = 'Preview Active';
+            if (successCard) successCard.hidden = false;
+            setMessage('Album Preview Uploaded Successfully');
+        } catch (error) {
+            console.error('Could not upload album preview:', error);
+            setMessage(error.message || 'Could not upload album preview right now.');
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Upload Album Preview';
+            }
+        }
+    });
+
+    if (whatsappButton) {
+        whatsappButton.addEventListener('click', function() {
+            if (!lastUpload) return;
+            const phone = String(lastUpload.phoneNumber || '').replace(/\D/g, '');
+            const whatsappPhone = phone.startsWith('91') ? phone : `91${phone}`;
+            const messageText = [
+                'Your album preview is ready \u2728',
+                '',
+                'Open your private preview:',
+                previewLink(),
+                '',
+                'Your Token:',
+                lastUpload.token,
+                '',
+                'Use your token and phone number to access your private cinematic album preview.',
+                '',
+                '- V2 Cinematic Studio'
+            ].join('\n');
+            window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(messageText)}`, '_blank', 'noopener');
+        });
+    }
+}
+
+async function initAdminGalleryManager() {
+    const clientSelect = document.getElementById('galleryManagerClientSelect');
+    const fileInput = document.getElementById('galleryManagerImages');
+    const dropZone = document.getElementById('galleryManagerDropZone');
+    const previewGrid = document.getElementById('galleryManagerPreviewGrid');
+    const selectedPreviewGrid = document.getElementById('galleryManagerSelectedGrid');
+    const uploadButton = document.getElementById('galleryManagerUploadButton');
+    const sendButton = document.getElementById('galleryManagerSendButton');
+    const downloadButton = document.getElementById('galleryManagerDownloadButton');
+    const viewSelectedButton = document.getElementById('galleryManagerViewSelectedButton');
+    const selectedModal = document.getElementById('galleryManagerSelectedModal');
+    const modalBackButton = document.getElementById('galleryManagerModalBack');
+    const modalCount = document.getElementById('galleryManagerModalCount');
+    const uploadMessage = document.getElementById('galleryManagerUploadMessage');
+    const uploadSuccess = document.getElementById('galleryManagerUploadSuccess');
+    const selectionStatus = document.getElementById('galleryManagerSelectionStatus');
+    const selectedMiniCount = document.getElementById('galleryManagerSelectedMiniCount');
+    const statusClientName = document.getElementById('galleryManagerStatusClientName');
+    const statusClientPhone = document.getElementById('galleryManagerStatusClientPhone');
+    const fileCount = document.getElementById('galleryManagerFileCount');
+    const progressText = document.getElementById('galleryManagerProgressText');
+    const progressBar = document.getElementById('galleryManagerProgressBar');
+    const info = {
+        name: document.getElementById('galleryManagerClientName'),
+        phone: document.getElementById('galleryManagerClientPhone'),
+        event: document.getElementById('galleryManagerClientEvent'),
+        token: document.getElementById('galleryManagerClientToken'),
+        status: document.getElementById('galleryManagerGalleryStatus')
+    };
+    let clients = [];
+    let selectedClient = null;
+    let files = [];
+    let selectedImages = [];
+    let unsubscribeSelection = null;
+
+    if (!clientSelect || !fileInput || !dropZone) return;
+
+    function clientEvent(client) {
+        return client.eventType || client.event || client.clientType || 'General';
+    }
+
+    function setUploadMessage(text) {
+        if (uploadMessage) uploadMessage.textContent = text || '';
+    }
+
+    function setProgress(done, total) {
+        const percent = total ? Math.round((done / total) * 100) : 0;
+        if (progressText) progressText.textContent = total ? `${done} of ${total} uploaded` : 'Waiting for images';
+        if (progressBar) progressBar.style.width = `${percent}%`;
+    }
+
+    function resetSelectionPanel() {
+        selectedImages = [];
+        if (selectedPreviewGrid) {
+            selectedPreviewGrid.innerHTML = '<p class="admin-empty-state is-visible">Selections will appear here after the client submits favorites.</p>';
+        }
+        if (downloadButton) downloadButton.disabled = true;
+        if (viewSelectedButton) viewSelectedButton.disabled = true;
+        if (selectionStatus) {
+            selectionStatus.textContent = 'Pending';
+            selectionStatus.classList.remove('is-ready');
+        }
+        if (selectedMiniCount) selectedMiniCount.textContent = '0 Images Selected';
+        if (modalCount) modalCount.textContent = '0 Images Selected';
+    }
+
+    function renderClientInfo(client) {
+        info.name.textContent = client ? (client.name || 'Unnamed Client') : 'Select Client';
+        info.phone.textContent = client ? (client.phone || client.phoneNumber || '-') : '-';
+        info.event.textContent = client ? clientEvent(client) : '-';
+        info.token.textContent = client ? (client.token || '-') : '-';
+        info.status.textContent = client ? (client.galleryStatus || 'Not Uploaded') : 'Waiting';
+        if (statusClientName) statusClientName.textContent = client ? (client.name || 'Unnamed Client') : 'Select Client';
+        if (statusClientPhone) statusClientPhone.textContent = client ? (client.phone || client.phoneNumber || '-') : '-';
+    }
+
+    function renderFilePreviews() {
+        if (fileCount) fileCount.textContent = files.length ? `${files.length} Images Selected` : 'No images selected';
+        if (!previewGrid) return;
+
+        previewGrid.innerHTML = files.length
+            ? files.slice(0, 48).map(file => `
+                <div class="gallery-manager-thumb">
+                    <img src="${v2EscapeHtml(URL.createObjectURL(file))}" alt="${v2EscapeHtml(file.name)}">
+                </div>
+            `).join('')
+            : '<p class="admin-empty-state is-visible">Selected image previews will appear here.</p>';
+    }
+
+    function cleanGalleryLink() {
+        if (window.location.origin && /^https?:/i.test(window.location.origin)) {
+            return `${window.location.origin}/UI/download-files.html`;
+        }
+        return 'https://yourdomain.com/UI/download-files.html';
+    }
+
+    function closeSelectedModal() {
+        if (selectedModal) selectedModal.hidden = true;
+        document.body.style.overflow = '';
+    }
+
+    async function loadSelectedImages(selection) {
+        if (!selectedClient || !selection || !Array.isArray(selection.selectedImageIds) || !selection.selectedImageIds.length) {
+            resetSelectionPanel();
+            return;
+        }
+
+        try {
+            const gallery = await window.v2Firebase.getClientGallery(selectedClient.id, selectedClient.collection || 'clients');
+            const selectedIds = new Set(selection.selectedImageIds);
+            selectedImages = gallery.images.filter(image => selectedIds.has(image.id));
+
+            if (downloadButton) downloadButton.disabled = selectedImages.length === 0;
+            if (viewSelectedButton) viewSelectedButton.disabled = selectedImages.length === 0;
+            if (selectionStatus) {
+                selectionStatus.textContent = 'Selections Ready ✓';
+                selectionStatus.classList.add('is-ready');
+            }
+            if (selectedMiniCount) selectedMiniCount.textContent = `${selectedImages.length} Images Selected`;
+            if (modalCount) modalCount.textContent = `${selectedImages.length} Images Selected`;
+
+            selectedPreviewGrid.innerHTML = selectedImages.length
+                ? selectedImages.map(image => `
+                    <a class="gallery-manager-selected-thumb" href="${v2EscapeHtml(image.url)}" target="_blank" rel="noopener">
+                        <img src="${v2EscapeHtml(image.url)}" alt="Selected client image">
+                    </a>
+                `).join('')
+                : '<p class="admin-empty-state is-visible">No selected images found.</p>';
+        } catch (error) {
+            console.error('Could not load selected images:', error);
+            setUploadMessage('Unable to load selected images right now.');
+        }
+    }
+
+    function watchSelection(client) {
+        if (unsubscribeSelection) {
+            unsubscribeSelection();
+            unsubscribeSelection = null;
+        }
+        resetSelectionPanel();
+        if (!client) return;
+
+        unsubscribeSelection = window.v2Firebase.watchClientSelection(client.id, async selection => {
+            const submitted = selection && selection.status === 'submitted';
+            const count = selection && Array.isArray(selection.selectedImageIds) ? selection.selectedImageIds.length : 0;
+
+            if (selectedMiniCount && !submitted) {
+                selectedMiniCount.textContent = `${count} Images Selected`;
+            }
+
+            if (submitted) {
+                await loadSelectedImages(selection);
+            } else {
+                if (viewSelectedButton) viewSelectedButton.disabled = true;
+                if (downloadButton) downloadButton.disabled = true;
+                if (selectionStatus) {
+                    selectionStatus.textContent = 'Pending';
+                    selectionStatus.classList.remove('is-ready');
+                }
+            }
+        });
+    }
+
+    function setFiles(nextFiles) {
+        files = nextFiles.filter(file => file.type.startsWith('image/'));
+        renderFilePreviews();
+        setProgress(0, files.length);
+        setUploadMessage(files.length ? '' : 'Choose image files to upload.');
+    }
+
+    try {
+        clients = await window.v2Firebase.getAlbumPreviewClients();
+        clientSelect.innerHTML = '<option value="">Select client</option>' + clients.map(client => `
+            <option value="${v2EscapeHtml(client.id)}" data-collection="${v2EscapeHtml(client.collection || 'clients')}">
+                ${v2EscapeHtml(client.name || 'Unnamed Client')} (${v2EscapeHtml(client.phone || client.phoneNumber || 'No phone')})
+            </option>
+        `).join('');
+    } catch (error) {
+        console.error('Could not load gallery manager clients:', error);
+        setUploadMessage('Unable to load clients right now.');
+    }
+
+    clientSelect.addEventListener('change', async function() {
+        const option = clientSelect.selectedOptions[0];
+        selectedClient = clients.find(client => client.id === clientSelect.value && (client.collection || 'clients') === (option.dataset.collection || 'clients')) || null;
+        renderClientInfo(selectedClient);
+        watchSelection(selectedClient);
+        if (uploadSuccess) uploadSuccess.hidden = true;
+        setUploadMessage('');
+    });
+
+    fileInput.addEventListener('change', function() {
+        setFiles(Array.from(fileInput.files || []));
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function(event) {
+            event.preventDefault();
+            dropZone.classList.add('is-dragging');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, function(event) {
+            event.preventDefault();
+            dropZone.classList.remove('is-dragging');
+        });
+    });
+
+    dropZone.addEventListener('drop', function(event) {
+        setFiles(Array.from(event.dataTransfer.files || []));
+    });
+
+    uploadButton.addEventListener('click', async function() {
+        if (!selectedClient) {
+            setUploadMessage('Select a client before uploading.');
+            return;
+        }
+        if (!files.length) {
+            setUploadMessage('Choose at least one image.');
+            return;
+        }
+
+        uploadButton.disabled = true;
+        uploadButton.textContent = 'Uploading Gallery...';
+        setUploadMessage('');
+
+        try {
+            for (let index = 0; index < files.length; index += 1) {
+                await window.v2Firebase.uploadClientGalleryImage(selectedClient.id, files[index], selectedClient);
+                setProgress(index + 1, files.length);
+            }
+
+            selectedClient.galleryStatus = 'uploaded';
+            renderClientInfo(selectedClient);
+            if (uploadSuccess) uploadSuccess.hidden = false;
+            setUploadMessage('');
+        } catch (error) {
+            console.error('Could not upload gallery:', error);
+            setUploadMessage('Could not upload gallery right now.');
+        } finally {
+            uploadButton.disabled = false;
+            uploadButton.textContent = 'Upload Gallery';
+        }
+    });
+
+    sendButton.addEventListener('click', function() {
+        if (!selectedClient) return;
+        const rawPhone = String(selectedClient.phone || selectedClient.phoneNumber || '').replace(/\D/g, '');
+        const whatsappPhone = rawPhone.startsWith('91') ? rawPhone : `91${rawPhone}`;
+        const text = [
+            '✨ Your V2 Cinematic Gallery is Ready',
+            '',
+            'Dear Client,',
+            '',
+            'Your private gallery preview has been uploaded successfully.',
+            '',
+            '🔗 Open Gallery:',
+            cleanGalleryLink(),
+            '',
+            '🔐 Access Token:',
+            selectedClient.token,
+            '',
+            '📱 Login using your phone number and token.',
+            '',
+            '— V2 Cinematic Studio'
+        ].join('\n');
+        window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+    });
+
+    if (viewSelectedButton) {
+        viewSelectedButton.addEventListener('click', function() {
+            if (!selectedImages.length || !selectedModal) return;
+            selectedModal.hidden = false;
+            document.body.style.overflow = 'hidden';
+        });
+    }
+
+    if (modalBackButton) {
+        modalBackButton.addEventListener('click', function() {
+            closeSelectedModal();
+        });
+    }
+
+    if (selectedModal) {
+        selectedModal.addEventListener('click', function(event) {
+            if (event.target === selectedModal) {
+                closeSelectedModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && selectedModal && !selectedModal.hidden) {
+            closeSelectedModal();
+        }
+    });
+
+    downloadButton.addEventListener('click', function() {
+        selectedImages.forEach((image, index) => {
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = image.url;
+                link.download = `v2-selected-${index + 1}.jpg`;
+                link.target = '_blank';
+                link.rel = 'noopener';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }, index * 180);
+        });
+    });
+
+    renderClientInfo(null);
+    resetSelectionPanel();
+    renderFilePreviews();
+    setProgress(0, 0);
+    if (uploadSuccess) uploadSuccess.hidden = true;
 }

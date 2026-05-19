@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Album Preview | V2 Cinematic Studio</title>
+    <meta name="description" content="Private cinematic album preview for V2 Cinematic Studio clients.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../CSS/style.css">
+</head>
+<body class="album-preview-page">
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo" aria-label="V2 Cinematic Studio home">
+                <img src="../Assets/logo.png" alt="V2 Cinematic Studio logo" class="logo-image">
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="about.html" class="nav-link">About Us</a></li>
+                <li><a href="package.html" class="nav-link">Package</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="works.html" class="nav-link">Works</a></li>
+                <li><a href="../index.html#contact" class="nav-link">Get Quote</a></li>
+                <li><a href="booknow.html" class="nav-book-btn">Book Now</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger" aria-label="Open navigation" role="button" tabindex="0">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="album-preview-shell">
+        <section class="album-login-section" id="albumLoginSection">
+            <div class="album-login-card">
+                <span class="album-login-kicker">Private Preview</span>
+                <h1>Access Your Album Preview</h1>
+                <p>Enter your private token and phone number to open your cinematic album preview.</p>
+                <form class="album-login-form" id="albumPreviewLoginForm">
+                    <label>
+                        <span>Token</span>
+                        <input type="text" id="albumPreviewToken" placeholder="V2-HCDFCF" autocomplete="off" required>
+                    </label>
+                    <label>
+                        <span>Phone Number</span>
+                        <input type="tel" id="albumPreviewPhone" placeholder="Your WhatsApp number" autocomplete="tel" required>
+                    </label>
+                    <button type="submit" class="btn btn-primary album-access-button" id="albumPreviewAccessButton">Access Preview</button>
+                    <p class="album-login-message" id="albumPreviewLoginMessage" aria-live="polite"></p>
+                </form>
+            </div>
+        </section>
+
+        <section class="album-viewer-section" id="albumViewerSection" hidden>
+            <div class="album-viewer-header">
+                <div>
+                    <span class="album-login-kicker">Preview Only</span>
+                    <h1 id="albumViewerTitle">Private Album Preview</h1>
+                </div>
+                <div class="album-viewer-actions">
+                    <button type="button" class="album-control-button" id="albumPrevButton" aria-label="Previous page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 18-6-6 6-6"></path>
+                        </svg>
+                    </button>
+                    <button type="button" class="album-control-button" id="albumNextButton" aria-label="Next page">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </button>
+                    <button type="button" class="album-control-button album-fullscreen-button" id="albumFullscreenButton" aria-label="Fullscreen preview">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                            <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                            <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                            <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="album-book-stage" id="albumBookStage">
+                <div class="album-book-loading" id="albumBookLoading">Preparing your cinematic album preview...</div>
+                <div class="album-book" id="albumFlipBook"></div>
+            </div>
+            <p class="album-preview-note">Preview-only mode. Watermarks and interaction limits are applied for review purposes.</p>
+        </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
+    <script src="../JS/firebase.js"></script>
+    <script src="../JS/script.js"></script>
+</body>
+</html>
